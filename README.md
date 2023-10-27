@@ -1,7 +1,7 @@
 # SlackStuff
 
 function getSlackUserIdByEmail(email) {
-  var SLACK_TOKEN = 'xoxb-5766395099651-5976259201044-5Vx6BHlEHcqxltFuZZg8XTtP'; // Slack OAuth Tokenを設定
+  var SLACK_TOKEN = ''; // Slack OAuth Tokenを設定
 
   // メールアドレスを使用してユーザーIDを取得
   var lookupUrl = 'https://slack.com/api/users.lookupByEmail';
@@ -27,7 +27,7 @@ Logger.log(lookupResponse.getContentText());  // ここでレスポンス全体�
 }
 
 function test() {
-  var email = 'naoya.fuke@arts-labo.com'; // IDを取得したいユーザーのメールアドレス
+  var email = ''; // IDを取得したいユーザーのメールアドレス
   var userId = getSlackUserIdByEmail(email);
   Logger.log(userId);
 }
