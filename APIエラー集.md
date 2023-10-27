@@ -7,7 +7,8 @@ Appをチャンネルに追加していない時に発生した。
 ### 対処法
 Appをチャンネルに追加する。  
 チャンネル名をクリックし、「インテグレーション」タブの「アプリを追加」をクリックしてAppを追加する。
-![image](https://github.com/naoya-fuke/SlackStuff/assets/79356057/e87aa97f-8cbf-4245-b4bd-b025936c27dc) 
+![image](https://github.com/naoya-fuke/SlackStuff/assets/79356057/95fe849b-9402-4dfc-9cfb-5a3daa92a8d5)
+
 
 
 ## already_in_channel
