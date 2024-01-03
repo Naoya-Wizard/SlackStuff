@@ -1,36 +1,57 @@
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
 import os
+import requests
 
-def fetch_slack_message_and_thread(channel_id, message_ts):
-    """
-    Slackの特定のチャンネルから特定のメッセージとそれに続くスレッドの内容を取得する関数
+class SlackMessageFetcher:
+    SLACK_TOKEN = os.environ['SLACK_API_REACTIONTRACKER_TOKEN']
 
-    :param channel_id: チャンネルのID
-    :param message_ts: スレッドの親メッセージのタイムスタンプ
-    :return: 親メッセージとスレッド内の全てのメッセージのリスト
-    """
-    # SlackのAPIトークンを環境変数から取得
-    slack_token = os.getenv("SLACK_API_TOKEN")
-    client = WebClient(token=slack_token)
+    @staticmethod
+    def fetch_all_replies(channel_id, timestamp):
+        all_messages = []
 
-    try:
-        # スレッドのメッセージを取得
-        result = client.conversations_replies(
-            channel=channel_id,
-            ts=message_ts
-        )
+        while True:
+            # Slack APIのURLとパラメータ
+            url = "https://slack.com/api/conversations.replies"
+            params = {
+                'channel': channel_id,
+                'ts': timestamp,
+                'pretty': 1,
+                'inclusive': True
+            }
 
-        messages = result["messages"]
-        return messages
+            # HTTPヘッダーの設定
+            headers = {
+                'Authorization': f'Bearer {SlackMessageFetcher.SLACK_TOKEN}'
+            }
 
-    except SlackApiError as e:
-        print(f"Error fetching message and thread: {e}")
-        return []
+            # HTTPリクエストの送信
+            response = requests.get(url, headers=headers, params=params)
 
-# 使用例
-# SLACK_API_TOKEN環境変数にAPIトークンを設定してください。
-# channel_idとmessage_tsを適宜変更してください。
-messages = fetch_slack_message_and_thread("YOUR_CHANNEL_ID", "YOUR_MESSAGE_TS")
-for message in messages:
-    print(message)
+            # レスポンスの解析
+            if response.status_code == 200:
+                data = response.json()
+
+                if data['ok']:
+                    all_messages.extend(data['messages'])
+                    if not data.get('has_more'):
+                        break
+                    # 次のページのためのタイムスタンプを更新
+                    timestamp = data['messages'][-1]['ts']
+                else:
+                    print(f"Error: {data['error']}")
+                    break
+            else:
+                print(f"HTTP Error: {response.status_code}")
+                break
+
+        return all_messages
+
+# メイン処理
+if __name__ == "__main__":
+    # 例: チャネルIDとタイムスタンプを指定
+    channel_id = 'YOUR_CHANNEL_ID'
+    timestamp = 'YOUR_TIMESTAMP'
+    
+    messages = SlackMessageFetcher.fetch_all_replies(channel_id, timestamp)
+    print(messages)
+    all_messages_text = "\n---\n".join(message['text'] for message in messages)
+    print(f"Message text:\n{all_messages_text}")
